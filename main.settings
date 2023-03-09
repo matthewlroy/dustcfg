@@ -1,0 +1,2 @@
+export DUST_SERVER_PORT=3000
+export DUST_CHAT_PATH=/dust/dustchat/
