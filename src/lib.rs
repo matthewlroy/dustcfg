@@ -11,7 +11,7 @@ pub fn get_env_var(desired_env_var: &str) -> String {
 
 #[derive(Serialize, Deserialize)]
 pub struct EndpointNames {
-    health_check: &'static str,
+    pub health_check: &'static str,
 }
 
 impl EndpointNames {
