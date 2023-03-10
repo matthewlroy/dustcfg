@@ -1,7 +1,7 @@
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 use serde_json;
-use std::{env, fs::File, io::Write};
+use std::{env, fs::File, io::Write, num::ParseIntError};
 
 pub fn get_env_var(desired_env_var: &str) -> String {
     match env::var(desired_env_var) {
@@ -125,11 +125,27 @@ pub fn generate_v4_uuid() -> String {
     uuid_v4
 }
 
+pub fn decode_hex_to_utf8(text_to_decode: &str) -> String {
+    let v: Result<Vec<u8>, ParseIntError> = (0..text_to_decode.len())
+        .step_by(2)
+        .map(|i| u8::from_str_radix(&text_to_decode[i..i + 2], 16))
+        .collect();
+
+    if v.is_ok() {
+        let v_as_bytes: Vec<u8> = v.unwrap();
+        return String::from_utf8_lossy(&v_as_bytes).to_string();
+    }
+
+    panic!("Could not decode: \"{}\", invalid input", text_to_decode);
+}
+
 #[cfg(test)]
 mod tests {
     use regex::Regex;
 
-    use crate::{generate_v4_uuid, get_env_var, write_api_endpoints_to_json_file};
+    use crate::{
+        decode_hex_to_utf8, generate_v4_uuid, get_env_var, write_api_endpoints_to_json_file,
+    };
     use std::path::Path;
 
     #[test]
@@ -159,5 +175,23 @@ mod tests {
         )
         .unwrap();
         assert!(re.is_match(&generate_v4_uuid()));
+    }
+
+    #[test]
+    fn test_decode_hex_to_ascii() {
+        assert_eq!("z", decode_hex_to_utf8("7A"));
+        assert_eq!("�", decode_hex_to_utf8("AA"));
+        assert_eq!(
+            "{\"name\":\"John\", \"age\":30, \"car\":null}",
+            decode_hex_to_utf8(
+                "7B226E616D65223A224A6F686E222C2022616765223A33302C2022636172223A6E756C6C7D"
+            )
+        );
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_decode_hex_to_ascii_panic() {
+        decode_hex_to_utf8("testy");
     }
 }
