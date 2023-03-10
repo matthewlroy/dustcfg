@@ -1,7 +1,12 @@
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 use serde_json;
-use std::{env, fs::File, io::Write, num::ParseIntError};
+use std::{
+    env,
+    fs::File,
+    io::{self, Write},
+    num::ParseIntError,
+};
 
 pub fn get_env_var(desired_env_var: &str) -> String {
     match env::var(desired_env_var) {
@@ -125,18 +130,24 @@ pub fn generate_v4_uuid() -> String {
     uuid_v4
 }
 
-pub fn decode_hex_to_utf8(text_to_decode: &str) -> String {
+pub fn decode_hex_to_utf8(text_to_decode: &str) -> Result<String, io::Error> {
     let v: Result<Vec<u8>, ParseIntError> = (0..text_to_decode.len())
         .step_by(2)
         .map(|i| u8::from_str_radix(&text_to_decode[i..i + 2], 16))
         .collect();
 
-    if v.is_ok() {
-        let v_as_bytes: Vec<u8> = v.unwrap();
-        return String::from_utf8_lossy(&v_as_bytes).to_string();
+    match v.is_ok() {
+        true => {
+            let v_as_bytes: Vec<u8> = v.unwrap();
+            Ok(String::from_utf8_lossy(&v_as_bytes).to_string())
+        }
+        false => {
+            let e_kind = io::ErrorKind::InvalidInput;
+            let e = format!("Could not decode: \"{}\", invalid input", text_to_decode).to_owned();
+            let error = io::Error::new(e_kind, e);
+            Err(error)
+        }
     }
-
-    panic!("Could not decode: \"{}\", invalid input", text_to_decode);
 }
 
 #[cfg(test)]
@@ -146,7 +157,7 @@ mod tests {
     use crate::{
         decode_hex_to_utf8, generate_v4_uuid, get_env_var, write_api_endpoints_to_json_file,
     };
-    use std::path::Path;
+    use std::{io, path::Path};
 
     #[test]
     #[should_panic]
@@ -179,19 +190,21 @@ mod tests {
 
     #[test]
     fn test_decode_hex_to_ascii() {
-        assert_eq!("z", decode_hex_to_utf8("7A"));
-        assert_eq!("�", decode_hex_to_utf8("AA"));
+        assert_eq!("z", decode_hex_to_utf8("7A").unwrap());
+        assert_eq!("�", decode_hex_to_utf8("AA").unwrap());
         assert_eq!(
             "{\"name\":\"John\", \"age\":30, \"car\":null}",
             decode_hex_to_utf8(
                 "7B226E616D65223A224A6F686E222C2022616765223A33302C2022636172223A6E756C6C7D"
             )
+            .unwrap()
         );
     }
 
     #[test]
-    #[should_panic]
-    fn test_decode_hex_to_ascii_panic() {
-        decode_hex_to_utf8("testy");
+    fn test_decode_hex_to_ascii_should_error() {
+        let result = decode_hex_to_utf8("testy").map_err(|e| e.kind());
+        let expected = Err(io::ErrorKind::InvalidInput);
+        assert_eq!(expected, result);
     }
 }
