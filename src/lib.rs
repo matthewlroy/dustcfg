@@ -18,17 +18,20 @@ pub fn get_env_var(desired_env_var: &str) -> String {
 #[derive(Serialize, Deserialize)]
 pub struct EndpointNames {
     pub health_check: &'static str,
+    pub create_user: &'static str,
 }
 
 impl EndpointNames {
-    const fn new(endpoint: &'static str) -> Self {
+    const fn new(health_check_api: &'static str, create_user_api: &'static str) -> Self {
         EndpointNames {
-            health_check: endpoint,
+            health_check: health_check_api,
+            create_user: create_user_api,
         }
     }
 }
 
-pub const API_ENDPOINTS: EndpointNames = EndpointNames::new("/api/v1/health_check");
+pub const API_ENDPOINTS: EndpointNames =
+    EndpointNames::new("/api/v1/health_check", "/api/v1/create_user");
 
 pub fn write_api_endpoints_to_json_file() -> std::io::Result<()> {
     let mut f = File::create(format!(
