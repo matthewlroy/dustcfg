@@ -192,7 +192,7 @@ mod tests {
     }
 
     #[test]
-    fn test_decode_hex_to_ascii() {
+    fn test_decode_hex_to_utf8() {
         assert_eq!("z", decode_hex_to_utf8("7A").unwrap());
         assert_eq!("�", decode_hex_to_utf8("AA").unwrap());
         assert_eq!(
@@ -205,7 +205,7 @@ mod tests {
     }
 
     #[test]
-    fn test_decode_hex_to_ascii_should_error() {
+    fn test_decode_hex_to_utf8_should_error() {
         let result = decode_hex_to_utf8("testy").map_err(|e| e.kind());
         let expected = Err(io::ErrorKind::InvalidInput);
         assert_eq!(expected, result);
