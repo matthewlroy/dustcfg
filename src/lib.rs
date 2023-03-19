@@ -134,7 +134,7 @@ pub fn generate_v4_uuid() -> String {
 }
 
 pub fn decode_hex_to_utf8(text_to_decode: &str) -> Result<String, io::Error> {
-    if text_to_decode.len() < 2 {
+    if text_to_decode.len() % 2 != 0 {
         let e_kind = io::ErrorKind::InvalidInput;
         let e = format!("Could not decode: \"{}\", invalid input", text_to_decode).to_owned();
         let error = io::Error::new(e_kind, e);
