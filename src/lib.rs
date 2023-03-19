@@ -134,6 +134,13 @@ pub fn generate_v4_uuid() -> String {
 }
 
 pub fn decode_hex_to_utf8(text_to_decode: &str) -> Result<String, io::Error> {
+    if text_to_decode.len() < 2 {
+        let e_kind = io::ErrorKind::InvalidInput;
+        let e = format!("Could not decode: \"{}\", invalid input", text_to_decode).to_owned();
+        let error = io::Error::new(e_kind, e);
+        return Err(error);
+    }
+
     let v: Result<Vec<u8>, ParseIntError> = (0..text_to_decode.len())
         .step_by(2)
         .map(|i| u8::from_str_radix(&text_to_decode[i..i + 2], 16))
@@ -207,6 +214,10 @@ mod tests {
     #[test]
     fn test_decode_hex_to_utf8_should_error() {
         let result = decode_hex_to_utf8("testy").map_err(|e| e.kind());
+        let expected = Err(io::ErrorKind::InvalidInput);
+        assert_eq!(expected, result);
+
+        let result = decode_hex_to_utf8("-").map_err(|e| e.kind());
         let expected = Err(io::ErrorKind::InvalidInput);
         assert_eq!(expected, result);
     }
