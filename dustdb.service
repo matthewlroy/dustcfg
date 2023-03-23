@@ -1,0 +1,16 @@
+[Unit]
+Description=dustdb service
+After=dustweb.service
+Wants=dustweb.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=root
+ExecStart=/root/.cargo/bin/dustdb
+EnvironmentFile=/etc/systemd/system/dustdb.service.d/dustdb.conf
+
+[Install]
+WantedBy=multi-user.target

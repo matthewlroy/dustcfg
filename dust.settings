@@ -1,0 +1,9 @@
+export DUST_SERVER_PORT=3000
+export DUST_SERVER_ADDR=127.0.0.1
+export DUST_DB_PORT=3306
+export DUST_DB_ADDR=127.0.0.1
+export DUST_CHAT_PATH=/dust/dustchat/
+export DUST_DATA_STORAGE_PATH=/dust/dustdb/data/
+export DUST_LOG_PATH=/dust/dustlog/logs/
+export DUST_DATA_FMT=json
+export DUST_LOG_FMT=log

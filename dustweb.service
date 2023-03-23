@@ -1,0 +1,16 @@
+[Unit]
+Description=dustweb service
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=root
+ExecStart=/root/.cargo/bin/dustweb
+EnvironmentFile=/etc/systemd/system/dustweb.service.d/dustweb.conf
+
+[Install]
+WantedBy=multi-user.target
