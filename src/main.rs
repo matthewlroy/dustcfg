@@ -16,6 +16,15 @@ fn main() -> std::io::Result<()> {
 
 fn setup_services() -> std::io::Result<()> {
     for service_name in ["dustweb", "dustdb"] {
+        // Install the respective cargo binaries!
+        println!("This will take a few minutes . . . installing cargo release for: {}", &service_name);
+        Command::new("cargo")
+            .arg("install")
+            .arg("--path")
+            .arg(format!("/dust/{}/.", &service_name))
+            .output()?;
+        println!("SUCCESS! cargo release for: {}", &service_name);
+
         // Write (and replaces) service files in systemd
         Command::new("cp")
             .arg(format!("/dust/dustcfg/{}.service", &service_name))
