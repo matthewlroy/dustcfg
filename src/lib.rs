@@ -160,12 +160,23 @@ pub fn decode_hex_to_utf8(text_to_decode: &str) -> Result<String, io::Error> {
     }
 }
 
+pub fn encode_utf8_to_hex(text_to_encode: &str) -> String {
+    let mut string_builder = String::new();
+
+    for byte in text_to_encode.as_bytes() {
+        string_builder.push_str(&format!("{:02x}", byte));
+    }
+
+    string_builder
+}
+
 #[cfg(test)]
 mod tests {
     use regex::Regex;
 
     use crate::{
-        decode_hex_to_utf8, generate_v4_uuid, get_env_var, write_api_endpoints_to_json_file,
+        decode_hex_to_utf8, encode_utf8_to_hex, generate_v4_uuid, get_env_var,
+        write_api_endpoints_to_json_file,
     };
     use std::{io, path::Path};
 
@@ -220,5 +231,13 @@ mod tests {
         let result = decode_hex_to_utf8("-").map_err(|e| e.kind());
         let expected = Err(io::ErrorKind::InvalidInput);
         assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn test_encode_utf8_to_hex() {
+        assert_eq!(
+            encode_utf8_to_hex("{\"name\":\"John\", \"age\":30, \"car\":null}").to_uppercase(),
+            "7B226E616D65223A224A6F686E222C2022616765223A33302C2022636172223A6E756C6C7D",
+        );
     }
 }
