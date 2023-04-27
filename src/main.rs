@@ -16,8 +16,18 @@ fn main() -> std::io::Result<()> {
 
 fn setup_services() -> std::io::Result<()> {
     for service_name in ["dustweb", "dustdb"] {
+        // Stop services (potentially) if running!
+        Command::new("systemctl")
+            .arg("stop")
+            .arg(&service_name)
+            .output()?;
+        println!("Stopped service for: {}", &service_name);
+
         // Install the respective cargo binaries!
-        println!("This will take a few minutes . . . installing cargo release for: {}", &service_name);
+        println!(
+            "This will take a few minutes . . . installing cargo release for: {}",
+            &service_name
+        );
         Command::new("cargo")
             .arg("install")
             .arg("--path")
